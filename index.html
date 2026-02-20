@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Dodo's Potluck</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Prompt:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+--green-dark:#0f2f1f;
+--green-main:#1f5c3f;
+--green-light:#2f7a57;
+--gold:#d4af37;
+--bg:#0b1d14;
+}
+
+*{box-sizing:border-box}
+
+body{
+margin:0;
+font-family:'Prompt',sans-serif;
+background:linear-gradient(135deg,var(--bg),#07140d);
+color:#e8f5ec;
+padding:25px;
+}
+
+/* --- เพิ่มส่วน Logo มุมซ้ายบน --- */
+.logo-box {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 100;
+}
+
+.logo-box img {
+    width: 100px; /* ปรับขนาดได้ตามต้องการ */
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+    object-fit: cover;
+    background: var(--green-dark);
+}
+/* --------------------------- */
+
+.container{
+position: relative;
+max-width:760px;
+margin:40px auto auto auto; /* เว้นที่ให้โลโก้เล็กน้อย */
+background:var(--green-dark);
+padding:35px;
+border-radius:18px;
+box-shadow:0 0 60px rgba(0,0,0,.7);
+border:1px solid rgba(212,175,55,.2);
+}
+
+h1{
+text-align:center;
+font-family:'Playfair Display',serif;
+font-size:38px;
+color:var(--gold);
+margin-bottom:8px;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.subtitle{
+text-align:center;
+color:#a5cbb5;
+margin-bottom:10px;
+font-style: italic;
+}
+
+.gold-total{
+text-align:center;
+color:#ffd76b;
+font-weight:bold;
+margin-bottom:15px;
+font-size: 1.2em;
+}
+
+/* SLOT WINDOW */
+.slot-window{
+height:60px;
+overflow:hidden;
+position:relative;
+background:var(--green-main);
+border-radius:12px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:24px;
+font-weight:600;
+border:2px solid rgba(212,175,55,.3);
+}
+
+.slot-window::after{
+content:"";
+position:absolute;
+left:0;right:0;
+top:50%;
+height:2px;
+background:rgba(255,215,0,.5);
+transform:translateY(-50%);
+box-shadow:0 0 12px rgba(255,215,0,.8);
+pointer-events:none;
+}
+
+.slot-reel{
+position:absolute;
+top:0;left:0;right:0;
+}
+
+.slot-item{
+height:60px;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
+.spinning .slot-item{
+filter:blur(2px);
+opacity:.8;
+}
+
+/* RARITY COLORS */
+.common{color:#e8f5ec;}
+.rare{color:#4dd0ff;}
+.epic{color:#c77dff;}
+.legendary{
+color:#ffd700;
+text-shadow:0 0 12px rgba(255,215,0,.9);
+animation:legendPulse 1.2s infinite alternate;
+}
+
+@keyframes legendPulse{
+from{ text-shadow:0 0 6px rgba(255,215,0,.5);}
+to{ text-shadow:0 0 22px rgba(255,215,0,1);}
+}
+
+.latest{
+margin-top:15px;
+padding: 15px;
+background: rgba(0,0,0,0.2);
+border-radius: 10px;
+text-align:center;
+font-weight:bold;
+min-height: 80px;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:10px;
+background:var(--green-light);
+color:#fff;
+font-weight:600;
+cursor:pointer;
+transition:.2s;
+margin-top:8px;
+width:100%;
+font-size: 16px;
+}
+
+button:hover{
+background:#3b9c6e;
+transform:scale(1.02);
+}
+
+button:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
+border:1px solid #2e6d4b;
+background:#163f2b;
+color:#fff;
+}
+
+ul{
+list-style:none;
+padding:0;
+margin-top:20px;
+}
+
+li{
+background:#143726;
+margin:6px 0;
+padding:12px;
+border-radius:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+font-size:15px;
+border-left: 4px solid var(--green-light);
+}
+
+.small-btn{
+padding:6px 10px;
+font-size:12px;
+width:auto;
+margin-left:5px;
+}
+
+.edit-btn{background:#1e5f7a;}
+.delete-btn{background:#7a1e1e;}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 25px 0;
+}
+</style>
+</head>
+<body>
+
+<div class="logo-box">
+    <img src="dodo.jpg" alt="The Dodo's Potluck Logo">
+</div>
+
+<div class="container">
+    <h1>The Dodo's Potluck</h1>
+    <div class="subtitle">Spin Your Feast!</div>
+    <div class="gold-total" id="goldTotal">Gold สะสม: 0</div>
+
+    <div class="slot-window">
+        <div class="slot-reel" id="slotReel">
+            <div class="slot-item">Let's Spin!</div>
+        </div>
+    </div>
+
+    <div class="latest" id="latestResult">รอกดสุ่มเมนูนำโชค...</div>
+
+    <select id="filterCategory">
+        <option value="all">ทุกหมวดหมู่ (All)</option>
+        <option value="คาว">อาหารคาว (Main)</option>
+        <option value="หวาน">ของหวาน (Dessert)</option>
+        <option value="เครื่องดื่ม">เครื่องดื่ม (Drink)</option>
+    </select>
+
+    <button id="randomBtn">🎰 หมุนวงล้อสุ่มเมนู</button>
+
+    <hr>
+
+    <h3>จัดการคลังเมนู</h3>
+    <input id="foodName" placeholder="ชื่อเมนู">
+    <select id="foodCategory">
+        <option value="คาว">อาหารคาว</option>
+        <option value="หวาน">ของหวาน</option>
+        <option value="เครื่องดื่ม">เครื่องดื่ม</option>
+    </select>
+    <button id="addBtn">เพิ่มเมนูใหม่</button>
+
+    <input id="searchInput" placeholder="ค้นหาเมนูในคลัง...">
+    <ul id="menuList"></ul>
+
+    <div style="display: flex; gap: 10px;">
+        <button onclick="resetDefault()" style="background: #555;">คืนค่าเริ่มต้น</button>
+        <button onclick="clearAll()" style="background: #444;">ล้างทั้งหมด</button>
+    </div>
+</div>
+
+<script>
+let defaultFoods=[
+    {name:"ขาแกะย่าง",category:"คาว"},
+    {name:"สตูว์เนื้อ",category:"คาว"},
+    {name:"ซุปหัวหอม",category:"คาว"},
+    {name:"พายแอปเปิ้ล",category:"หวาน"},
+    {name:"ไวน์องุ่น",category:"เครื่องดื่ม"}
+];
+
+let foods=[];
+let lastResult=null;
+let totalGold=0;
+let isSpinning=false;
+let editingIndex=null;
+
+function getRarity(){
+    const r=Math.random();
+    if(r<0.6) return {class:"common",reward:10,label:"Common"};
+    if(r<0.85) return {class:"rare",reward:25,label:"Rare"};
+    if(r<0.97) return {class:"epic",reward:60,label:"Epic"};
+    return {class:"legendary",reward:150,label:"Legendary"};
+}
+
+function save(){
+    localStorage.setItem("tavernFoodsStable",JSON.stringify(foods));
+    localStorage.setItem("tavernGoldStable",totalGold);
+}
+
+function load(){
+    foods=JSON.parse(localStorage.getItem("tavernFoodsStable"))||[...defaultFoods];
+    totalGold=parseInt(localStorage.getItem("tavernGoldStable"))||0;
+    updateGold();
+}
+
+function updateGold(){
+    document.getElementById("goldTotal").innerText="Gold สะสม: "+totalGold;
+}
+
+function render(){
+    const list=document.getElementById("menuList");
+    const search=document.getElementById("searchInput").value.toLowerCase();
+    list.innerHTML="";
+    foods.sort((a,b)=>a.name.localeCompare(b.name));
+
+    foods.forEach((f,i)=>{
+        if(f.name.toLowerCase().includes(search)){
+            list.innerHTML+=`
+            <li>
+                <span><strong>${f.name}</strong> <small>(${f.category})</small></span>
+                <div>
+                    <button class="small-btn edit-btn" onclick="editItem(${i})">แก้ไข</button>
+                    <button class="small-btn delete-btn" onclick="removeItem(${i})">ลบ</button>
+                </div>
+            </li>`;
+        }
+    });
+}
+
+function editItem(i){
+    editingIndex=i;
+    document.getElementById("foodName").value=foods[i].name;
+    document.getElementById("foodCategory").value=foods[i].category;
+    document.getElementById("addBtn").innerText="บันทึกการแก้ไข";
+    window.scrollTo(0, document.body.scrollHeight/2);
+}
+
+function removeItem(i){
+    if(confirm("ลบเมนูนี้ใช่หรือไม่?")){
+        foods.splice(i,1);
+        save();
+        render();
+    }
+}
+
+function clearAll(){
+    if(confirm("ต้องการล้างเมนูทั้งหมดหรือไม่?")){
+        foods=[];
+        save();
+        render();
+    }
+}
+
+function resetDefault(){
+    if(confirm("ต้องการคืนค่าเริ่มต้นหรือไม่?")){
+        foods=[...defaultFoods];
+        save();
+        render();
+    }
+}
+
+document.getElementById("addBtn").onclick=()=>{
+    const name=document.getElementById("foodName").value.trim();
+    const cat=document.getElementById("foodCategory").value;
+    if(!name) return;
+
+    if(editingIndex!==null){
+        foods[editingIndex]={name,category:cat};
+        editingIndex=null;
+        document.getElementById("addBtn").innerText="เพิ่มเมนูใหม่";
+    }else{
+        if(foods.some(f=>f.name.toLowerCase()===name.toLowerCase())){
+            alert("มีเมนูนี้ในคลังแล้ว");
+            return;
+        }
+        foods.push({name,category:cat});
+    }
+
+    document.getElementById("foodName").value="";
+    save();
+    render();
+};
+
+document.getElementById("foodName").addEventListener("keydown",e=>{
+    if(e.key==="Enter") document.getElementById("addBtn").click();
+});
+
+document.getElementById("searchInput").oninput=render;
+
+/* SLOT ANIMATION */
+document.getElementById("randomBtn").onclick=()=>{
+    if(isSpinning) return;
+    
+    let pool=foods;
+    const filter=document.getElementById("filterCategory").value;
+    if(filter!=="all") pool=foods.filter(f=>f.category===filter);
+    
+    if(!pool.length){
+        alert("ไม่พบเมนูในหมวดหมู่ที่เลือก");
+        return;
+    }
+
+    isSpinning=true;
+
+    let randomItem;
+    do{
+        randomItem=pool[Math.floor(Math.random()*pool.length)];
+    }while(pool.length>1 && randomItem.name===lastResult);
+
+    lastResult=randomItem.name;
+
+    const rarity=getRarity();
+    const reel=document.getElementById("slotReel");
+    const btn=document.getElementById("randomBtn");
+    btn.disabled=true;
+    reel.classList.add("spinning");
+
+    const loopCount=12;
+    let extended=[];
+    for(let i=0;i<loopCount;i++) extended.push(...pool);
+    extended.push(randomItem);
+
+    reel.innerHTML="";
+    extended.forEach(item=>{
+        reel.innerHTML+=`<div class="slot-item">${item.name}</div>`;
+    });
+
+    reel.style.transition="none";
+    reel.style.transform="translateY(0)";
+    reel.offsetHeight;
+
+    const itemHeight=60;
+    const finalIndex=extended.length-1;
+    const basePosition=-(finalIndex*itemHeight);
+    const overshoot=30;
+
+    requestAnimationFrame(()=>{
+        reel.style.transition="transform 3.8s cubic-bezier(.08,.75,.15,1)";
+        reel.style.transform=`translateY(${basePosition-overshoot}px)`;
+    });
+
+    reel.addEventListener("transitionend", function handler(e){
+        if(e.propertyName!=="transform") return;
+        reel.removeEventListener("transitionend", handler);
+
+        reel.style.transition="transform .35s cubic-bezier(.34,1.56,.64,1)";
+        reel.style.transform=`translateY(${basePosition}px)`;
+
+        setTimeout(()=>{
+            reel.classList.remove("spinning");
+            btn.disabled=false;
+            isSpinning=false;
+
+            totalGold+=rarity.reward;
+            updateGold();
+            save();
+
+            document.getElementById("latestResult").innerHTML=
+            `🎉 ได้ <span class="${rarity.class}">${randomItem.name}</span><br>
+            <small>ระดับ: ${rarity.label} | รางวัล: +${rarity.reward} Gold</small>`;
+        },350);
+    });
+};
+
+load();
+render();
+</script>
+
+</body>
+</html>
